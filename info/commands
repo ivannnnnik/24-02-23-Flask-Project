@@ -1,0 +1,11 @@
+python -m venv venv  - Создание виртуального окружения
+source venv\[Scripts/bin]\activate - Активация виртуального окружения
+pip install -r requirements.txt - установка зависимостей
+
+
+
+
+#
+1. Удалить migrations / flask db init
+2. flask db migrate -m "Initial migration."   -     Cоздание миграции
+3. flask db upgrade     -     Применение миграции

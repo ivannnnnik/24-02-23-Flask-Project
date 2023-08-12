@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+  postgres:
+    image: postgres:14-alpine
+    ports:
+      - 5433:5432
+    environment:
+      POSTGRES_DB: sitesstat
+      POSTGRES_USER: sitesstat
+      POSTGRES_PASSWORD: sitesstat
+    volumes:
+      - "db:/var/lib/postgresql/data"
+
+volumes:
+  db:

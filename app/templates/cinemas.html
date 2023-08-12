@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block content %}
+    {% if message %}
+        <div class="alert alert-danger" role="alert">
+            Adding cinema failed! Please try again.
+        </div>
+
+        <h3 style="color:red">{{ message }}</h3>
+    {% endif %}
+
+    <h1>Add Cinema</h1>
+    <form method="post" action="{{ url_for('add_cinemas') }}">
+        {{ form.csrf_token }}
+        {{ form.name.label }} {{ form.name }}
+        {{ form.address.label }} {{ form.address }}
+        {{ form.district.label }} {{ form.district }}
+        {{ form.submit }}
+    </form>
+    <h1>Вот список кинотеатров</h1>
+    <ul>
+        {% for cinema in cinemas %}
+            <div id="{{ cinema.0 }}">
+                <li>
+                    <h3>Название: {{ cinema.1 }}</h3>
+                    <p>Адрес: {{ cinema.2 }}</p>
+                    <p>Район: {{ cinema.3 }}</p>
+                </li>
+                <button onclick="DelCinema({{ cinema.0 }})">Удалить</button>
+            </div>
+        {% endfor %}
+    </ul>
+
+
+    <script>
+        function DelCinema(cinema_id) {
+            let data = {}
+            data.cinema_id = cinema_id;
+            $.ajax({
+                url: '{{ url_for('delete_cinema') }}',
+                method: 'get',
+                dataType: 'html',
+                data: data,
+                success: function (data) {
+                    data = JSON.parse(data)
+                    status = data['status']
+                    id = data['id']
+                    let item = document.getElementById(id)
+                    item.remove()
+                    {#alert(status)#}
+                }
+
+            })
+        }
+
+
+    </script>
+{% endblock %}

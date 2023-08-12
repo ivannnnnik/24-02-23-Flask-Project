@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h1>Фильмы</h1>
+    <ul>
+        {% for movie in movies %}
+            <li>
+                {{ movie.name }} <br>
+                Кинотеатр {{ movie.cinema_id }}
+                <a href="/buy_ticket/{{ movie.id }}">Купить билет</a>
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}

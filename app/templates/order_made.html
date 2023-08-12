@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+
+{% block title %}Схема кинотеатра{% endblock %}
+
+{% block content %}
+    <title>Схема кинотеатра</title>
+    <link rel="stylesheet" type="css" href="../static/css/made_order.css">
+    <style>.seat {
+        width: 65px;
+        height: 65px;
+        margin: 5px;
+        display: inline-block;
+        background-color: #e5e5e5;
+        border: 1px solid #ccc;
+        cursor: pointer;
+    }
+
+    .selected {
+        width: 65px;
+        height: 65px;
+        margin: 5px;
+        display: inline-block;
+        background-color: #ff0000;
+        border: 1px solid #ccc;
+        cursor: pointer;
+
+    }</style>
+
+    <h4>Вы успешно приобрели билеты! Ваши места выделены красным цветом</h4>
+    </head>
+    <body>
+    <h1>Схема кинотеатра</h1>
+    <div>
+        {% for i in data %}
+            {% if i not in taken_seat %}
+                <div class="seat">seat {{ i }}</div>
+            {% endif %}
+            {% if i in taken_seat %}
+                <div class="selected">seat {{ i }}</div>
+            {% endif %}
+        {% endfor %}
+    </div>
+
+{% endblock %}

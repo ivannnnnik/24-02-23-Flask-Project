@@ -1,0 +1,31 @@
+Index: app/config.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>from flask import Flask\r\nfrom flask_login import LoginManager\r\nfrom flask_sqlalchemy import SQLAlchemy\r\nfrom flask_migrate import Migrate\r\n\r\nfrom constants import DATABASE_SETTINGS\r\napp = Flask(__name__)  # Создаем приложение\r\napp.config[\"SECRET_KEY\"] = \"fsdfsdfgjsdfsk7327y43r\"\r\napp.debug = True\r\n\r\n# Настройки для подключения\r\napp.config[\"SQLALCHEMY_DATABASE_URI\"] = DATABASE_SETTINGS\r\napp.config[\"SQLALCHEMY_TRACK_MODIFICATIONS\"] = False\r\n\r\n# БД\r\ndb = SQLAlchemy(app)\r\nmigrate = Migrate(app, db)\r\n\r\n# Авторизация\r\nlogin_manager = LoginManager()\r\nlogin_manager.init_app(app)\r\nlogin_manager.login_view = \"login\"\r\napp.app_context().push()\r\n\r\n
+===================================================================
+diff --git a/app/config.py b/app/config.py
+--- a/app/config.py	
++++ b/app/config.py	
+@@ -3,7 +3,7 @@
+ from flask_sqlalchemy import SQLAlchemy
+ from flask_migrate import Migrate
+ 
+-from constants import DATABASE_SETTINGS
++from .constants import DATABASE_SETTINGS
+ app = Flask(__name__)  # Создаем приложение
+ app.config["SECRET_KEY"] = "fsdfsdfgjsdfsk7327y43r"
+ app.debug = True
+Index: app/UserLogin.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>from models import Users\r\n# from db.db_utils import Database\r\nfrom flask_login import UserMixin\r\n\r\n# dbase = Database()\r\n\r\n\r\nclass UserLogin(UserMixin):\r\n    def __init__(self):\r\n        self.__user = None\r\n\r\n    def from_db(self, user_id):\r\n        self.__user = Users.query.get(user_id)\r\n        return self\r\n\r\n    def create(self, user):\r\n        self.__user = user\r\n        return self\r\n\r\n    def get_id(self):\r\n        return str(self.__user.id)\r\n\r\n    def get_user(self, user_id):\r\n        self.__user = Users.query.get(user_id)\r\n        return self\r\n\r\n    # def is_admin(self):\r\n    #     user_status = self.__user[0]['role']\r\n    #     if user_status == 'admin':\r\n    #         return True\r\n
+===================================================================
+diff --git a/app/UserLogin.py b/app/UserLogin.py
+--- a/app/UserLogin.py	
++++ b/app/UserLogin.py	
+@@ -1,4 +1,4 @@
+-from models import Users
++from .models import Users
+ # from db.db_utils import Database
+ from flask_login import UserMixin
+ 

@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+
+{% block title %}Покупка билета{% endblock %}
+{% block content %}
+      <style>.seat {
+        width: 65px;
+        height: 65px;
+        margin: 5px;
+        display: inline-block;
+        background-color: #2ad720;
+        border: 1px solid #ccc;
+        cursor: pointer;
+    }
+
+    .selected {
+        width: 65px;
+        height: 65px;
+        margin: 5px;
+        display: inline-block;
+        background-color: rgba(26, 23, 23, 0.07);
+        border: 1px solid #ccc;
+        cursor: pointer;
+
+    }
+    </style>
+    <h1>Фильм {{ movie_name }} </h1>
+    <h3>Кинотеатр {{ movie_cinema }} </h3>
+    <h3>Цена билета {{ movie_price }} </h3>
+    <h4>Занятые места выделены серым цветом. Свободные места выделены зеленым цветом</h4>
+    </head>
+    <body>
+    <h1>Схема кинотеатра</h1>
+    <div>
+        {% for i in data %}
+            {% if i not in taken_tickets %}
+                <div class="seat">seat {{ i }}</div>
+            {% endif %}
+            {% if i in taken_tickets %}
+                <div class="selected">seat {{ i }}</div>
+            {% endif %}
+        {% endfor %}
+    </div>
+    <br>
+    <br>
+    <form action="/buy_ticket/{{ movie_id }}/{{ cnt_of_tickets }}" method="post">
+    {% for place in mas_of_cnt_of_tickets %}
+        <label for="seat{{ place }}">Выберите {{ place }}-е место:</label>
+        <select id="seat{{ place }}" name="seat{{ place }}">
+            {% for i in tickets %}
+                <option value="Место {{ i }}">Место {{ i }}</option>
+            {% endfor %}
+        </select>
+        <br>
+     {% endfor %}
+     <input type="submit" value="Отправить">
+    </form>
+
+{% endblock %}

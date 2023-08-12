@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+
+{% block title %}Покупка билета{% endblock %}
+{% block content %}
+
+    <h1>Фильм {{ movie_name }} </h1>
+    <h3>Кинотеатр {{ movie_cinema }} </h3>
+    <h3>Цена билета {{ movie_price }} </h3>
+    <form action="/buy_ticket/{{ movie_id }}" method="post">
+        <label for="seat">Выберите количество билетов:</label>
+        <select id="seat" name="seat">
+            {% for i in tickets %}
+                <option value={{ i }}>{{ i }}</option>
+            {% endfor %}
+
+        </select>
+        <input type="submit" value="Отправить">
+
+    </form>
+
+{% endblock %}

@@ -1,0 +1,17 @@
+Index: app/__init__.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>from flask import Flask\r\nfrom flask_login import LoginManager\r\nfrom flask_sqlalchemy import SQLAlchemy\r\nfrom flask_migrate import Migrate\r\n\r\nfrom .constants import DATABASE_SETTINGS\r\napp = Flask(__name__)  # Создаем приложение\r\napp.config[\"SECRET_KEY\"] = \"fsdfsdfgjsdfsk7327y43r\"\r\napp.debug = True\r\n\r\n# Настройки для подключения\r\napp.config[\"SQLALCHEMY_DATABASE_URI\"] = DATABASE_SETTINGS\r\napp.config[\"SQLALCHEMY_TRACK_MODIFICATIONS\"] = False\r\n\r\n# БД\r\ndb = SQLAlchemy(app)\r\nmigrate = Migrate(app, db)\r\n\r\n# Авторизация\r\nlogin_manager = LoginManager()\r\nlogin_manager.init_app(app)\r\nlogin_manager.login_view = \"login\"\r\napp.app_context().push()\r\n\r\nfrom app import views, models, forms\r\n
+===================================================================
+diff --git a/app/__init__.py b/app/__init__.py
+--- a/app/__init__.py	
++++ b/app/__init__.py	
+@@ -3,7 +3,7 @@
+ from flask_sqlalchemy import SQLAlchemy
+ from flask_migrate import Migrate
+ 
+-from .constants import DATABASE_SETTINGS
++from app.constants import DATABASE_SETTINGS
+ app = Flask(__name__)  # Создаем приложение
+ app.config["SECRET_KEY"] = "fsdfsdfgjsdfsk7327y43r"
+ app.debug = True

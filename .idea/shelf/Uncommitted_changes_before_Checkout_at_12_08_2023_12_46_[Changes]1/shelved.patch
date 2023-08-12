@@ -1,0 +1,221 @@
+Index: app/templates/profile.html
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>{% extends 'base.html' %}\r\n\r\n{% block title %}profile{% endblock %}\r\n{% block content %}\r\n    <div class=\" justify-content-center\">\r\n    <h1 style=\"font-weight:bold; color:blue;\">Профиль</h1>\r\n        <br>\r\n    <h3>{{ name }}</h3>\r\n        <br>\r\n    <p>Email: {{ email }}</p>\r\n    </div>\r\n{% endblock %}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/templates/profile.html b/app/templates/profile.html
+--- a/app/templates/profile.html	
++++ b/app/templates/profile.html	
+@@ -5,8 +5,8 @@
+     <div class=" justify-content-center">
+     <h1 style="font-weight:bold; color:blue;">Профиль</h1>
+         <br>
+-    <h3>{{ name }}</h3>
++    <h3>{{ user.name }}</h3>
+         <br>
+-    <p>Email: {{ email }}</p>
++    <p>Email: {{ user.email }}</p>
+     </div>
+ {% endblock %}
+Index: Tasks.md
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+># 1. Поправить шаблон (Если пользователь авторизован, то должно быть только поле выйти и наоборот)\r\n# 2. choices для cinema_id\r\n# 3. реализовать отображение занятых мест(передать доп. переменную в шаблон(список))\r\n# 4. Начать использовать осмысленные переменные !!!\r\n# 5. Реализовать функцию в db_utils для получения пользователя по id и вывести контактную информацию о нем(страница профиля)\r\n# 6. Перенести сили из html в css файлы\r\n# 7. Navbar все добавления в выпадающем списке; Профиль - теперь выпадающий список - в нем выход\r\n# 8. Избавиться от костылей с переменными (cinemas, add_cinemas)\r\n\r\n\r\n\r\n\r\n# 1.  Сделать страницу с отображением мест - точкой входа покупки билета\r\n# 2. На странице выбора кол-ва мест, отобразить доступное кол-во\r\n# 3. Избавиться от костылей с переменными (cinemas, add_cinemas) / создать новый шаблон дял второй функии\r\n# 4. Реализовать через ajax добавление кинотеатра\r\n\r\n\r\n\r\n# 1. ajax доделать / вторая функция для получения объекта из БД\r\n# 2. Создать все существующие таблицы с помощью ORM в файле db/models.py \r\n# 3. Переписать запросы с SELECTами на ORM\r\n\r\n# 1. Переписать все запросы на SQLAlchemy\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/Tasks.md b/Tasks.md
+--- a/Tasks.md	
++++ b/Tasks.md	
+@@ -22,3 +22,7 @@
+ # 3. Переписать запросы с SELECTами на ORM
+ 
+ # 1. Переписать все запросы на SQLAlchemy
++
++
++
++# Сделать поле email уникальным
+\ No newline at end of file
+Index: app/models.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>from config import db\r\n\r\n\r\nclass Films(db.Model):\r\n    __tablename__ = 'films'\r\n\r\n    id = db.Column(db.Integer, primary_key=True)\r\n    name = db.Column(db.String(50))\r\n    description = db.Column(db.Text)\r\n    cinema_id = db.Column(db.Integer)\r\n    price = db.Column(db.Integer)\r\n    date_premiere = db.Column(db.Date)\r\n    count_ticket = db.Column(db.Integer)\r\n\r\n    @classmethod\r\n    def add_films(cls, name, description, cinema_id, price, date_premiere, count_ticket):\r\n        new_film = cls(name=name, description=description, cinema_id=cinema_id, price=price,\r\n                       date_premiere=date_premiere, count_ticket=count_ticket)\r\n        db.session.add(new_film)\r\n        db.session.commit()\r\n        print(f\"Добавлен новый фильм: {name}\")\r\n\r\n    @classmethod\r\n    def delete_film(cls, name):\r\n        film = cls.query.filter_by(name=name).first()\r\n        if film:\r\n            db.session.delete(film)\r\n            db.session.commit()\r\n            print(f\"Фильм {name} удален\")\r\n        else:\r\n            print(f\"Фильм {name} не найден\")\r\n\r\n    @classmethod\r\n    def get_film_by_id(cls, id):\r\n        film = cls.query.filter_by(id=id).first()\r\n        if film:\r\n            return {\"id\": film.id, \"name\": film.name, \"description\": film.description, \"cinema_id\": film.cinema_id,\r\n                    \"price\": film.price, \"date_premiere\": film.date_premiere, \"count_ticket\": film.count_ticket}\r\n        else:\r\n            return False\r\n\r\n    @classmethod\r\n    def take_films(cls):\r\n        films = cls.query.all()\r\n        data = []\r\n        for film in films:\r\n            film_data = {\r\n                \"id\": film.id,\r\n                \"name\": film.name,\r\n                \"description\": film.description,\r\n                \"cinema_id\": film.cinema_id,\r\n                \"price\": film.price,\r\n                \"date_premiere\": film.date_premiere,\r\n                \"count_ticket\": film.count_ticket\r\n            }\r\n            data.append(film_data)\r\n        return data\r\n\r\n    @classmethod\r\n    def get_films(cls):\r\n        films = cls.query.all()\r\n        data = []\r\n        for film in films:\r\n            film_data = [film.id, film.name, film.description, film.cinema_id, film.price, film.date_premiere,\r\n                         film.count_ticket]\r\n            data.append(film_data)\r\n        return data\r\n\r\n    @classmethod\r\n    def is_film_unq(cls, name):\r\n        film = cls.query.filter_by(name=name).first()\r\n        if film:\r\n            return False\r\n        return True\r\n\r\n\r\nclass Users(db.Model):\r\n    __tablename__ = 'users'\r\n\r\n    id = db.Column(db.Integer, primary_key=True)\r\n    name = db.Column(db.String(50))\r\n    email = db.Column(db.String(128))\r\n    password = db.Column(db.String(128))\r\n\r\n    @classmethod\r\n    def add_user(cls, name, email, password):\r\n        user = cls(name=name, email=email, password=password)\r\n        db.session.add(user)\r\n        db.session.commit()\r\n        print(f\"Добавлен новый пользователь: {name}\")\r\n\r\n    @classmethod\r\n    def delete_user(cls, name):\r\n        user = cls.query.filter_by(name=name).first()\r\n        if user:\r\n            db.session.delete(user)\r\n            db.session.commit()\r\n            print(f\"Пользователь {name} удален\")\r\n        else:\r\n            print(f\"Пользователь {name} не найден\")\r\n\r\n    @classmethod\r\n    def get_user_by_id(cls, user_id):\r\n        user = cls.query.filter_by(id=user_id).first()\r\n        if user:\r\n            return {\"user_id\": user.id, \"name\": user.name, \"email\": user.email, \"password\": user.password}\r\n        else:\r\n            return False\r\n\r\n    @classmethod\r\n    def get_user_by_email(cls, user_email):\r\n        user = cls.query.filter_by(email=user_email).first()\r\n        if user:\r\n            return {\"user_id\": user.id, \"name\": user.name, \"email\": user.email, \"password\": user.password}\r\n        else:\r\n            return False\r\n\r\n    @classmethod\r\n    def get_users(cls):\r\n        users = cls.query.all()\r\n        data = []\r\n        for user in users:\r\n            user_data = [user.id, user.name, user.email, user.password]\r\n            data.append(user_data)\r\n        return data\r\n\r\n    @classmethod\r\n    def is_email_unq(cls, email):\r\n        user = cls.query.filter_by(email=email).first()\r\n        if user:\r\n            return False\r\n        return True\r\n\r\n    # @property\r\n    # def is_user_real(self, email, password):\r\n    #     user = self.query.filter_by(email=email, password=password).first()\r\n    #     if user:\r\n    #         return True\r\n    #     return False\r\n\r\n\r\nclass Orders(db.Model):\r\n    __tablename__ = 'orders'\r\n\r\n    id = db.Column(db.Integer, primary_key=True)\r\n    film_id = db.Column(db.Integer)\r\n    number = db.Column(db.Integer)\r\n    price = db.Column(db.Integer)\r\n\r\n    @classmethod\r\n    def add_order(cls, film_id, number, price):\r\n        order = cls(film_id=film_id, number=number, price=price)\r\n        db.session.add(order)\r\n        db.session.commit()\r\n        print(f\"Добавлен новый заказ\")\r\n\r\n    @classmethod\r\n    def taken_seats(cls, film_id):\r\n        data = []\r\n        orders = cls.query.filter_by(film_id=film_id).all()\r\n        for order in orders:\r\n            data.append(order.number)\r\n        return data\r\n\r\n\r\nclass Cinemas(db.Model):\r\n    __tablename__ = 'cinemas'\r\n\r\n    id = db.Column(db.Integer, primary_key=True)\r\n    name = db.Column(db.String(50))\r\n    address = db.Column(db.String(128))\r\n    district = db.Column(db.String(128))\r\n\r\n    @classmethod\r\n    def add_cinema(cls, name, address, district):\r\n        cinema = cls(name=name, address=address, district=district)\r\n        db.session.add(cinema)\r\n        db.session.commit()\r\n        print(f\"Добавлен новый кинотеатр: {name}\")\r\n\r\n    @classmethod\r\n    def delete_cinema(cls, id):\r\n        cinema = cls.query.filter_by(id=id).first()\r\n        if cinema:\r\n            db.session.delete(cinema)\r\n            db.session.commit()\r\n            print(f\"Кинотеатр {id} удален\")\r\n        else:\r\n            print(f\"Кинотеатр {id} не найден\")\r\n\r\n    @classmethod\r\n    def get_cinema(cls, name, address, district):\r\n        cinema = cls.query.filter_by(name=name, address=address, district=district).first()\r\n        if cinema:\r\n            return {\"id\": cinema.id, \"name\": cinema.name, \"address\": cinema.address, \"district\": cinema.district}\r\n        else:\r\n            return False\r\n\r\n    @classmethod\r\n    def get_cinema_ids(cls):\r\n        cinemas = cls.query.all()\r\n        ids = [cinema.id for cinema in cinemas]\r\n        return ids\r\n\r\n    @classmethod\r\n    def get_cinemas(cls):\r\n        cinemas = cls.query.all()\r\n        data = []\r\n        for cinema in cinemas:\r\n            cinema_data = [cinema.id, cinema.name, cinema.address, cinema.district]\r\n            data.append(cinema_data)\r\n        return data\r\n\r\n# user = Users(name=\"kate\", email=\"k@mail.ru\",password=\"11111111\")\r\n# db.session.add(user)\r\n# db.session.commit()\r\n# user = Users(name=\"j\", email=\"jjj@mail.ru\", password=\"999999999\")\r\n# db.session.add(user)\r\n# db.session.commit()\r\n# cinema = Cinemas(name=\"h\", address=\"pp\",district=\"ll\")\r\n# db.session.add(cinema)\r\n# db.session.commit()\r\n\r\n# print(Cinemas.get_cinema(\"h\",\"pp\",\"ll\"))\r\n# print(Films.get_film_by_id(1))\r\n# print(Cinemas.get_cinema_ids())\r\n# print(Films.get_films())\r\n# print(Users.get_users())\r\n# print(Users.is_email_unq(\"jjjppp@mail.ru\"))\r\n# print(Films.is_film_unq(\"Брат\"))\r\n# print(Cinemas.get_cinemas())\r\n# print(Users.is_user_real(\"jjj@mail.ru\", \"999999999\"))\r\n# print(Orders.taken_seats(1))\r\n# Films.add_films('uttu','uttu',1,10,'01-01-2000',20)\r\n# Films.delete_film('uttu')\r\n# Users.add_user(\"kateee\", \"k@mail.ru\",\"11111111\")\r\n# Users.delete_user(\"kateee\")\r\n# Cinemas.add_cinema('uttu','uttu','uttu')\r\nprint(Users.get_user_by_id(1))\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/models.py b/app/models.py
+--- a/app/models.py	
++++ b/app/models.py	
+@@ -1,4 +1,4 @@
+-from config import db
++from .config import db
+ 
+ 
+ class Films(db.Model):
+Index: app/views.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>from flask import (\r\n    render_template,\r\n    request,\r\n    redirect,\r\n    url_for,\r\n)\r\nfrom flask_login import login_required, login_user, logout_user, current_user\r\nfrom UserLogin import UserLogin\r\n\r\nfrom config import app, db, login_manager\r\nfrom forms import CreateUserForm, CreateCinema\r\nfrom models import Films, Users, Cinemas, Orders\r\nfrom constants import PORT\r\n\r\n\r\n@login_manager.user_loader\r\ndef load_user(user_id):\r\n    print(\"load user\")\r\n    return UserLogin().from_db(user_id)\r\n\r\n\r\n@login_manager.unauthorized_handler\r\ndef unauthorized():\r\n    return \"You must be logged in to access this page\"\r\n\r\n\r\n@app.route(\"/\")\r\ndef index():\r\n    message = \"\"\r\n    context = {\"message\": message}\r\n    return render_template(\"index.html\", **context)\r\n\r\n\r\n@app.route(\"/login\", methods=[\"POST\", \"GET\"])\r\ndef login():\r\n    message = None\r\n    if request.method == \"POST\":\r\n        password = request.form[\"password\"]\r\n        email = request.form[\"email\"]\r\n        user = Users.query.filter_by(email=email, password=password).first_or_404()\r\n        if user:\r\n            user = Users.get_user_by_email(email)  # Достали пользователя по email\r\n            user = UserLogin().create(user)\r\n            login_user(user, remember=True)  # Создали пользователя и залогинили\r\n            return redirect(\"/\")\r\n        else:\r\n            message = \"Неверное имя пользователя, email или пароль\"\r\n    context = {\"message\": message}\r\n    return render_template(\"login.html\", **context)\r\n\r\n\r\n@app.route(\"/profile\")\r\n@login_required\r\ndef profile():\r\n    user_id = current_user.get_id()\r\n    user = Users.query.get(user_id)\r\n    context = {\r\n        \"name\": user.name,\r\n        \"user_id\": user.id,\r\n        \"email\": user.email,\r\n    }\r\n    return render_template(\"profile.html\", **context)\r\n\r\n\r\n@app.route(\"/logout\")\r\ndef logout():\r\n    logout_user()\r\n    return redirect(\"/login\")\r\n\r\n\r\n@app.route(\"/about\")\r\n@login_required\r\ndef about():\r\n    return render_template(\"about.html\")\r\n\r\n\r\n@app.route(\"/signin\", methods=[\"GET\", \"POST\"])\r\ndef create_user():\r\n    form = CreateUserForm()\r\n    email = form.email.data\r\n    message = None\r\n    if request.method == \"POST\":\r\n        if form.validate_on_submit() and Users.is_email_unq(email):\r\n            name = form.name.data\r\n            password = form.password.data\r\n            Users.add_user(name, email, password)\r\n            return redirect(url_for(\"success\"))\r\n        if Users.is_email_unq(email) is False:\r\n            return redirect(url_for(\"unsuccess\"))\r\n        if form.validate_on_submit() is False:\r\n            message = \"Некорректный email\"\r\n    context = {\r\n        \"message\": message,\r\n    }\r\n    return render_template(\"form_users.html\", form=form, **context)\r\n\r\n\r\n@app.route(\"/form_users/success\")\r\ndef success():\r\n    return render_template(\"success.html\")\r\n\r\n\r\n@app.route(\"/form_users/unsuccess\")\r\ndef unsuccess():\r\n    return render_template(\"unsuccess.html\")\r\n\r\n\r\n@app.route(\"/add_film\", methods=[\"POST\", \"GET\"])\r\n@login_required\r\ndef add_film():\r\n    message = \"Фильм добавлен\"\r\n    ids = Films.get_cinema_ids()\r\n    if request.method == 'POST':\r\n        name = request.form['name']\r\n        description = request.form['description']\r\n        cinema_id = request.form['cinema_id']\r\n        price = request.form['price']\r\n        date_premiere = request.form['date_premiere']\r\n        count_ticket = request.form['count_ticket']\r\n        if Films.is_film_unq(name):\r\n            Films.add_films(name, description, cinema_id, price, date_premiere, count_ticket)\r\n            message = \"Фильм добавлен\"\r\n            return redirect(url_for(\"films\"))\r\n        else:\r\n            message = \"Такой фильм уже существует\"\r\n\r\n    context = {\r\n        \"message\": message,\r\n        \"ids\": ids\r\n    }\r\n    return render_template(\"send_films.html\", **context)\r\n\r\n\r\n@app.route(\"/films\")\r\n@login_required\r\ndef films():\r\n    films = Films.get_films()\r\n    # films = db.get_films()\r\n    context = {\"films\": films}\r\n    return render_template(\"form_films.html\", **context)\r\n\r\n\r\n@app.route('/buy_ticket')\r\n@login_required\r\ndef buy():\r\n    # films = db.get_films()\r\n    films = Films.query.all()\r\n    context = {\r\n        'movies': films\r\n    }\r\n    return render_template(\"buy_ticket.html\", **context)\r\n\r\n\r\n@app.route('/buy_ticket/<movie_id>', methods=['GET', 'POST'])\r\n@login_required\r\ndef buy_cnt_ticket(movie_id):\r\n    movie = Films.get_film_by_id(movie_id)\r\n    movie_name = movie['name']\r\n    movie_cinema = movie['cinema_id']\r\n    movie_price = movie['price']\r\n    movie_count_ticket = movie['count_ticket']\r\n    taken_tickets = Orders.taken_seats(movie_id)\r\n    tickets = list(range(1, movie_count_ticket + 1 - len(taken_tickets)))\r\n    if request.method == 'POST':\r\n        cnt_of_tickets = request.form['seat']\r\n        cnt_of_tickets = int(cnt_of_tickets)\r\n        movie_id = int(movie_id)\r\n        return redirect(url_for(\"buy_ticket\", cnt_of_tickets=cnt_of_tickets, movie_id=movie_id))\r\n    context = {\r\n        'movie_name': movie_name,\r\n        'movie_id': movie_id,\r\n        'movie_cinema': movie_cinema,\r\n        'movie_price': movie_price,\r\n        'movie_count_ticket': movie_count_ticket,\r\n        'tickets': tickets,\r\n    }\r\n    return render_template(\"cnttickets.html\", **context)\r\n\r\n\r\n@app.route('/buy_ticket/<movie_id>/<cnt_of_tickets>', methods=['GET', 'POST'])\r\n@login_required\r\ndef buy_ticket(movie_id, cnt_of_tickets):\r\n    movie = Films.get_film_by_id(movie_id)\r\n    movie_name = movie['name']\r\n    movie_cinema = movie['cinema_id']\r\n    cnt_of_tickets = cnt_of_tickets\r\n    movie_price = movie['price']\r\n    movie_count_ticket = movie['count_ticket']\r\n    tickets = []\r\n    taken_tickets = Orders.taken_seats(movie_id)\r\n    for j in range(1, movie_count_ticket + 1):\r\n        if j not in taken_tickets:\r\n            tickets.append(j)\r\n    mas_of_cnt_of_tickets = list(range(1, int(cnt_of_tickets) + 1))\r\n    if request.method == 'POST':\r\n        taken_seat = []\r\n        for seats in range(1, int(cnt_of_tickets) + 1):\r\n            s = 'seat'\r\n            s += str(seats)\r\n            seat = request.form[s]\r\n            seat = int(seat[6:])\r\n            Orders.add_order(movie_id, seat, movie_price)\r\n            taken_seat.append(seat)\r\n        data = list(range(1, movie_count_ticket + 1))\r\n        context_2 = {\r\n            'data': data,\r\n            'taken_seat': taken_seat\r\n        }\r\n        return render_template(\"order_made.html\", **context_2)\r\n    taken_tickets = Orders.taken_seats(movie_id)\r\n    data = list(range(1, movie_count_ticket + 1))\r\n    context = {\r\n        'mas_of_cnt_of_tickets': mas_of_cnt_of_tickets,\r\n        'movie_name': movie_name,\r\n        'movie_id': movie_id,\r\n        'movie_cinema': movie_cinema,\r\n        'movie_price': movie_price,\r\n        'movie_count_ticket': movie_count_ticket,\r\n        'tickets': tickets,\r\n        'cnt_of_tickets': cnt_of_tickets,\r\n        'data': data,\r\n        'taken_tickets': taken_tickets\r\n\r\n    }\r\n    return render_template(\"order.html\", **context)\r\n\r\n\r\n@app.route(\"/add_cinema\", methods=[\"POST\", \"GET\"])\r\n@login_required\r\ndef add_cinemas():\r\n    # cinemas = db.get_cinemas()\r\n    cinemas=Cinemas.query.all()\r\n    form = CreateCinema()\r\n    message = None\r\n    if request.method == \"POST\":\r\n        if form.validate_on_submit():\r\n            name = form.name.data\r\n            address = form.address.data\r\n            district = form.district.data\r\n            Cinemas.add_cinema(name, address, district)\r\n            return redirect(url_for(\"cinemas\"))\r\n        if form.validate_on_submit() == False:\r\n            message = \"Не хватает данных\"\r\n    context = {\"message\": message, \"cinemas\": cinemas}\r\n    return render_template(\"cinemas.html\", form=form, **context)\r\n\r\n\r\n@app.route(\"/cinemas\")\r\n@login_required\r\ndef cinemas():\r\n    cinemas = Cinemas.get_cinemas()\r\n    message = None\r\n    context = {\"message\": message, \"cinemas\": cinemas}\r\n    return render_template(\"list_cinemas.html\", **context)\r\n\r\n\r\n@app.route(\"/cinema/delete\")\r\ndef delete_cinema():\r\n    id = request.args['cinema_id']\r\n    Cinemas.delete_cinema(int(id))\r\n    # db.delete('cinemas', 'id', int(id))\r\n    data = {\r\n        'status': 'Кинотеатр успешно удален !',\r\n        'id': id\r\n    }\r\n    return data\r\n\r\n\r\n@app.route('/adding_cinema', methods=['POST'])\r\ndef adding_cinema():\r\n    cinema_name = request.form['cinema_name']\r\n    cinema_address = request.form['cinema_address']\r\n    cinema_district = request.form['cinema_district']\r\n    Cinemas.add_cinema(cinema_name, cinema_address, cinema_district)\r\n    # db.insert('cinemas', [cinema_name, cinema_address, cinema_district], ['name', 'address', 'district'])\r\n    obj = Cinemas.get_cinema(cinema_name, cinema_address, cinema_district)\r\n    print(obj)\r\n    data = {\r\n        'status': 'success',\r\n        'obj': obj,\r\n        'id': obj[0]['id']\r\n    }\r\n    return data\r\n\r\n\r\nif __name__ == \"__main__\":\r\n    db.create_all()\r\n    app.run(debug=True, port=PORT)\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/views.py b/app/views.py
+--- a/app/views.py	
++++ b/app/views.py	
+@@ -5,12 +5,34 @@
+     url_for,
+ )
+ from flask_login import login_required, login_user, logout_user, current_user
+-from UserLogin import UserLogin
++from .UserLogin import UserLogin
++from .forms import CreateUserForm, CreateCinema
++from .models import Films, Users, Cinemas, Orders
++from flask import Flask
++from flask_login import LoginManager
++from flask_sqlalchemy import SQLAlchemy
++from flask_migrate import Migrate
++
++from .constants import DATABASE_SETTINGS
++from .constants import PORT
++
++app = Flask(__name__)  # Создаем приложение
++app.config["SECRET_KEY"] = "fsdfsdfgjsdfsk7327y43r"
++app.debug = True
++
++# Настройки для подключения
++app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_SETTINGS
++app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+ 
+-from config import app, db, login_manager
+-from forms import CreateUserForm, CreateCinema
+-from models import Films, Users, Cinemas, Orders
+-from constants import PORT
++# БД
++db = SQLAlchemy(app)
++migrate = Migrate(app, db)
++
++# Авторизация
++login_manager = LoginManager()
++login_manager.init_app(app)
++login_manager.login_view = "login"
++app.app_context().push()
+ 
+ 
+ @login_manager.user_loader
+@@ -26,9 +48,7 @@
+ 
+ @app.route("/")
+ def index():
+-    message = ""
+-    context = {"message": message}
+-    return render_template("index.html", **context)
++    return render_template("index.html")
+ 
+ 
+ @app.route("/login", methods=["POST", "GET"])
+@@ -39,13 +59,16 @@
+         email = request.form["email"]
+         user = Users.query.filter_by(email=email, password=password).first_or_404()
+         if user:
++            # Users.query.get(email=email)
+             user = Users.get_user_by_email(email)  # Достали пользователя по email
+             user = UserLogin().create(user)
+             login_user(user, remember=True)  # Создали пользователя и залогинили
+             return redirect("/")
+         else:
+             message = "Неверное имя пользователя, email или пароль"
+-    context = {"message": message}
++    context = {
++        "message": message
++    }
+     return render_template("login.html", **context)
+ 
+ 
+@@ -55,9 +78,10 @@
+     user_id = current_user.get_id()
+     user = Users.query.get(user_id)
+     context = {
+-        "name": user.name,
+-        "user_id": user.id,
+-        "email": user.email,
++        'user': user
++        # "name": user.name,
++        # "user_id": user.id,
++        # "email": user.email,
+     }
+     return render_template("profile.html", **context)
+ 
+@@ -229,7 +253,7 @@
+ @login_required
+ def add_cinemas():
+     # cinemas = db.get_cinemas()
+-    cinemas=Cinemas.query.all()
++    cinemas = Cinemas.query.all()
+     form = CreateCinema()
+     message = None
+     if request.method == "POST":
+Index: app/run.py
+===================================================================
+diff --git a/app/run.py b/app/run.py
+deleted file mode 100644
+--- a/app/run.py	
++++ /dev/null	
+@@ -1,6 +0,0 @@
+-from config import app, db
+-from constants import PORT
+-
+-if __name__ == "__main__":
+-    db.create_all()
+-    app.run(debug=True, port=PORT)
+\ No newline at end of file
+Index: app/templates/index.html
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>{% extends 'base.html' %}\r\n\r\n{% block title %}Главная страница{% endblock %}\r\n{% block content %}\r\n<div class=\"container\">\r\n    <h3>Главная страница</h3>\r\n    {{ message }}\r\n    {% include 'includes/carousel_teaser.html' %}\r\n</div>\r\n{% endblock %}\r\n\r\n\r\n\r\n\r\n\r\n\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/templates/index.html b/app/templates/index.html
+--- a/app/templates/index.html	
++++ b/app/templates/index.html	
+@@ -4,7 +4,6 @@
+ {% block content %}
+ <div class="container">
+     <h3>Главная страница</h3>
+-    {{ message }}
+     {% include 'includes/carousel_teaser.html' %}
+ </div>
+ {% endblock %}
+Index: app/__init__.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/__init__.py b/app/__init__.py
+new file mode 100644
+--- /dev/null	
++++ b/app/__init__.py	
+@@ -0,0 +1,19 @@
++from flask import Flask
++
++from config import Config
++
++
++def create_app(config_class=Config):
++    from app import models, forms, config
++    app = Flask(__name__)
++    app.config.from_object(config_class)
++
++    # Initialize Flask extensions here
++
++    # Register blueprints here
++
++    @app.route('/test/')
++    def test_page():
++        return '<h1>Testing the Flask Application Factory Pattern</h1>'
++
++    return app
+diff --git a/config.py b/config.py
+new file mode 100644

@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% block content %}
+    {% if message %}
+        <div class="alert alert-danger" role="alert">
+            Adding cinema failed! Please try again.
+        </div>
+
+        <h3 style="color:red">{{ message }}</h3>
+    {% endif %}
+    <h1>Вот список кинотеатров</h1>
+    <ul id="list_of_cinemas">
+        {% for cinema in cinemas %}
+            <div id="{{ cinema.0 }}">
+                <li>
+                    <h3>Название: {{ cinema.1 }}</h3>
+                    <p>Адрес: {{ cinema.2 }}</p>
+                    <p>Район: {{ cinema.3 }}</p>
+                </li>
+                <button onclick="DelCinema({{ cinema.0 }})">Удалить</button>
+            </div>
+        {% endfor %}
+    </ul>
+
+
+    <script>
+        function DelCinema(cinema_id) {
+            let data = {}
+            data.cinema_id = cinema_id;
+            $.ajax({
+                url: '{{ url_for('delete_cinema') }}',
+                method: 'get',
+                dataType: 'html',
+                data: data,
+                success: function (data) {
+                    data = JSON.parse(data)
+                    status = data['status']
+                    id = data['id']
+                    let item = document.getElementById(id)
+                    item.remove()
+                    {#alert(status)#}
+                }
+
+            })
+        }
+
+
+    </script>
+
+    <button onclick="AddCinema()">Добавить кинотеатр</button>
+    <div id="cinemaForm" style="display: none;">
+        <input type="text" id="cinema_name" placeholder="Название кинотеатра">
+        <input type="text" id="cinema_address" placeholder="Адрес кинотеатра">
+        <input type="text" id="cinema_district" placeholder="Район кинотеатра">
+        <button onclick="SubmitCinema()">Отправить</button>
+    </div>
+
+    <script>
+        function AddCinema() {
+            document.getElementById("cinemaForm").style.display = "block";
+        }
+
+        function SubmitCinema() {
+            let cinema_name = document.getElementById("cinema_name").value;
+            let cinema_address = document.getElementById("cinema_address").value;
+            let cinema_district = document.getElementById("cinema_district").value;
+            let data = {};
+            data.cinema_name = cinema_name;
+            data.cinema_address = cinema_address;
+            data.cinema_district = cinema_district;
+
+            $.ajax({
+                url: '{{ url_for('adding_cinema') }}',
+                method: 'POST',
+                dataType: 'html',
+                data: data,
+                cinema_name: data.cinema_name,
+                cinema_address: data.cinema_address,
+                cinema_district: data.cinema_district,
+                success: function (data) {
+                    data = JSON.parse(data)
+                    id = data['id']
+                    let new_cinema = document.createElement("div");
+                    new_cinema.id = data.id
+                    new_cinema.innerHTML = `
+                    <li>
+                        <h3>id: ${id}</h3>
+                        <h3>Название: ${cinema_name}</h3>
+                        <p>Адрес: ${cinema_address}</p>
+                        <p>Район: ${cinema_district}</p>
+                    </li>
+                    <button onclick="DelCinema(${id})">Удалить</button>
+                `;
+                    document.getElementById("list_of_cinemas").appendChild(new_cinema);
+                    {#alert('Кинотеатр успешно добавлен!');#}
+
+                }
+            });
+        }
+    </script>
+
+{% endblock %}

@@ -1,0 +1,40 @@
+
+{% extends 'base.html' %}
+
+
+{% block title %}Добавление фильмов{% endblock %}
+{% block content %}
+<form action="{{ url_for('add_film') }}" method="post">
+    <p>
+        <label for="name">Название:</label></br>
+        <input type="text" name="name" required>
+    </p>
+    <p>
+        <label for="name">Описание:</label></br>
+        <input type="text" name="description" required>
+    </p>
+    <p>
+        <label for="cinema_id">Выберите id кинотеатра:</label>
+        <select id="cinema_id" name="cinema_id">
+            {% for i in ids %}
+                <option value={{ i }}>id {{ i }}</option>
+            {% endfor %}
+        </select>
+    </p>
+    <p>
+        <label for="name">Цена билета:</label></br>
+        <input type="text" name="price" required>
+    </p>
+    <p>
+        <label for="name">Дата премьеры (format 'YYYY-MM-DD'):</label></br>
+        <input type="text" name="date_premiere" required>
+    </p>
+    <p>
+        <label for="name">count of tickets:</label></br>
+        <input type="text" name="count_ticket" required>
+    </p>
+
+    <input type="submit">
+</form>
+{% endblock %}
+

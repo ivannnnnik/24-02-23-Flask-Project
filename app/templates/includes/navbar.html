@@ -1,0 +1,34 @@
+<nav class="navbar navbar-expand-sm bg-dark navbar-dark">
+    <a class="navbar-brand" href="{{ url_for('index') }}">Главная</a>
+    <ul class="navbar-nav">
+        <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('buy') }}">Купить билет</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('profile') }}">Профиль</a>
+        </li>
+        {% if current_user.is_authenticated %}
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('logout') }}">Выйти из аккаунта</a>
+            </li>
+        {% else %}
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('create_user') }}">Зарегистрироваться</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('login') }}">Авторизироваться</a>
+            </li>
+        {% endif %}
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown">
+                Прочие страницы
+            </a>
+            <div class="dropdown-menu">
+                <a class="dropdown-item" href="{{ url_for('add_cinemas') }}">Добавить кинотеатр</a>
+                <a class="dropdown-item" href="{{ url_for('films') }}">Посмотреть список фильмов</a>
+                <a class="dropdown-item" href="{{ url_for('cinemas') }}">Посмотреть список кинотеатров</a>
+                <a class="dropdown-item" href="{{ url_for('add_film') }}">Добавить фильм</a>
+            </div>
+        </li>
+    </ul>
+</nav>

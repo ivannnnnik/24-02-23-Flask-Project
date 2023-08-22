@@ -4,10 +4,10 @@
 {% block title %}Покупка билета{% endblock %}
 {% block content %}
 
-    <h1>Фильм {{ movie_name }} </h1>
-    <h3>Кинотеатр {{ movie_cinema }} </h3>
-    <h3>Цена билета {{ movie_price }} </h3>
-    <form action="/buy_ticket/{{ movie_id }}" method="post">
+    <h1>Фильм {{ film.name }} </h1>
+    <h3>Кинотеатр {{  film.cinema }} </h3>
+    <h3>Цена билета {{  film.price }} </h3>
+    <form action="/buy_ticket/{{  film.id }}" method="post">
         <label for="seat">Выберите количество билетов:</label>
         <select id="seat" name="seat">
             {% for i in tickets %}

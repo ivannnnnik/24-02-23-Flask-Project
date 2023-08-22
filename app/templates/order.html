@@ -24,9 +24,9 @@
 
     }
     </style>
-    <h1>Фильм {{ movie_name }} </h1>
-    <h3>Кинотеатр {{ movie_cinema }} </h3>
-    <h3>Цена билета {{ movie_price }} </h3>
+    <h1>Фильм {{ movie.name }} </h1>
+    <h3>Кинотеатр {{ movie.cinema }} </h3>
+    <h3>Цена билета {{ movie.price }} </h3>
     <h4>Занятые места выделены серым цветом. Свободные места выделены зеленым цветом</h4>
     </head>
     <body>
@@ -43,7 +43,7 @@
     </div>
     <br>
     <br>
-    <form action="/buy_ticket/{{ movie_id }}/{{ cnt_of_tickets }}" method="post">
+    <form action="/buy_ticket/{{ movie.id }}/{{ cnt_of_tickets }}" method="post">
     {% for place in mas_of_cnt_of_tickets %}
         <label for="seat{{ place }}">Выберите {{ place }}-е место:</label>
         <select id="seat{{ place }}" name="seat{{ place }}">

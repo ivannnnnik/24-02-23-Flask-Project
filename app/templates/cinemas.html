@@ -19,11 +19,11 @@
     <h1>Вот список кинотеатров</h1>
     <ul>
         {% for cinema in cinemas %}
-            <div id="{{ cinema.0 }}">
+            <div id="{{ cinema.id }}">
                 <li>
-                    <h3>Название: {{ cinema.1 }}</h3>
-                    <p>Адрес: {{ cinema.2 }}</p>
-                    <p>Район: {{ cinema.3 }}</p>
+                    <h3>Название: {{ cinema.name }}</h3>
+                    <p>Адрес: {{ cinema.address }}</p>
+                    <p>Район: {{ cinema.district }}</p>
                 </li>
                 <button onclick="DelCinema({{ cinema.0 }})">Удалить</button>
             </div>

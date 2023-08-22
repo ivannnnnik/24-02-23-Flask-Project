@@ -2,11 +2,11 @@
 {% block content %}
     <h1>Фильмы</h1>
     <ul>
-        {% for movie in movies %}
+        {% for film in films %}
             <li>
-                {{ movie.name }} <br>
-                Кинотеатр {{ movie.cinema_id }}
-                <a href="/buy_ticket/{{ movie.id }}">Купить билет</a>
+                {{ film.name }} <br>
+                Кинотеатр {{ film.cinema_id }}
+                <a href="/buy_ticket/{{ film.id }}">Купить билет</a>
             </li>
         {% endfor %}
     </ul>

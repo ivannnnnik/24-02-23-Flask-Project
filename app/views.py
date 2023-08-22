@@ -13,7 +13,6 @@ from .forms import CreateUserForm, CreateCinema
 from .models import Films, Users, Cinemas, Orders
 
 
-
 @login_manager.user_loader
 def load_user(user_id):
     print("load user")
@@ -131,7 +130,7 @@ def add_film():
 @app.route("/films")
 @login_required
 def films():
-    films = Films.query.all()
+    films = Films.get_films()
     context = {
         "films": films
     }
@@ -141,7 +140,7 @@ def films():
 @app.route('/buy_ticket')
 @login_required
 def buy():
-    films = Films.query.all()
+    films = Films.get_films()
     context = {
         'films': films
     }
@@ -167,43 +166,34 @@ def buy_cnt_ticket(film_id):
 @app.route('/buy_ticket/<film_id>/<cnt_of_tickets>', methods=['GET', 'POST'])
 @login_required
 def buy_ticket(film_id, cnt_of_tickets):
+    movie = Films.query.get(film_id)
     cnt_of_tickets = cnt_of_tickets
-    film = Films.query.get(film_id)
     taken_tickets = Orders.query.filter_by(film_id=film_id).all()
-    tickets = [seat for seat in range(1, film.count_ticket + 1) if seat not in taken_tickets]
+    taken_tickets = [ticket.number for ticket in taken_tickets]
+    tickets = [seat for seat in range(1, movie.count_ticket + 1) if seat not in taken_tickets]
     mas_of_cnt_of_tickets = list(range(1, int(cnt_of_tickets) + 1))
-
-    # TODO
     if request.method == 'POST':
         taken_seat = []
-        for seats in range(1, int(cnt_of_tickets) + 1):
-            s = 'seat'
-            s += str(seats)  # seat1
-            seat = request.form[s]  # seat1
-            seat = int(seat[6:])  # Место 2
-            Orders.add_order(film_id, seat, film.price)
-            taken_seat.append(seat)
-        data = list(range(1, film.count_ticket + 1))
-        context_2 = {
+        for seatnum in range(1, int(cnt_of_tickets) + 1):
+            seat_name = f'seat{seatnum}'
+            seat_value = int(request.form[seat_name][6:])
+            Orders.add_order(film_id, seat_value, movie.price)
+            taken_seat.append(seat_value)
+        data = list(range(1, movie.count_ticket + 1))
+        context2 = {
             'data': data,
             'taken_seat': taken_seat
         }
-        return render_template("order_made.html", **context_2)
-    # TODO
+        return render_template("order_made.html", **context2)
     taken_tickets = Orders.taken_seats(film_id)
-    data = list(range(1, movie_count_ticket + 1))
+    data = list(range(1, movie.count_ticket + 1))
     context = {
         'mas_of_cnt_of_tickets': mas_of_cnt_of_tickets,
-        'movie_name': movie_name,
-        'movie_id': movie_id,
-        'movie_cinema': movie_cinema,
-        'movie_price': movie_price,
-        'movie_count_ticket': movie_count_ticket,
+        'movie': movie,
         'tickets': tickets,
         'cnt_of_tickets': cnt_of_tickets,
         'data': data,
         'taken_tickets': taken_tickets
-
     }
     return render_template("order.html", **context)
 
@@ -257,17 +247,11 @@ def delete_cinema():
 
 @app.route('/adding_cinema', methods=['POST'])
 def adding_cinema():
-    cinema_name = request.form['cinema_name']
-    cinema_address = request.form['cinema_address']
-    cinema_district = request.form['cinema_district']
-    # TODO Функция создает и возвращает объект
     obj = Cinemas.add_cinema(
         request.form['cinema_name'],
         request.form['cinema_address'],
         request.form['cinema_district']
     )
-
-    obj = Cinemas.get_cinema(cinema_name, cinema_address, cinema_district)
     data = {
         'status': 'success',
         'obj': obj,
